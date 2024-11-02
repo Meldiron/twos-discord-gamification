@@ -2,7 +2,7 @@ import Axios from "axios";
 import { InteractionResponseType } from 'discord-interactions';
 import { generateImage } from "../canvas.js";
 
-const goldenName = "6 of heart"; // Also update golden.png
+const goldenId = "6_of_heart"; // Also update golden.png
 
 export const rewardCommand = async (context, appwrite) => {
     context.log("Running reward command");
@@ -52,9 +52,11 @@ export const rewardCommand = async (context, appwrite) => {
                             } else if (golden) {
                                 card = "golden";
                             } else {
-                                const number = numbers[Math.floor(Math.random() * numbers.length)];
-                                const color = colors[Math.floor(Math.random() * colors.length)];
-                                card = `${number}_of_${color}`;
+                                do {
+                                    const number = numbers[Math.floor(Math.random() * numbers.length)];
+                                    const color = colors[Math.floor(Math.random() * colors.length)];
+                                    card = `${number}_of_${color}`;
+                                } while(card !== goldenId);
                             }
 
                             context.log(`Card: ${card}`);
@@ -67,9 +69,9 @@ export const rewardCommand = async (context, appwrite) => {
                             if (card === 'joker') {
                                 msg.content = `**Golden card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
                             } else if (card === 'golden') {
-                                msg.content = `**${goldenName}** was dealt.\n\nYou won! 🥳 <@287294735054274560> <@1152120064154288169>`;
+                                msg.content = `**${goldenId.split('_').join(' ')}** was dealt.\n\nYou won! 🥳 <@287294735054274560> <@1152120064154288169>`;
                             } else {
-                                msg.content = `Card **${card.split('_').join(' ')}** was dealt.\n_Better luck next time. You are looking for **${goldenName}**._`;
+                                msg.content = `Card **${card.split('_').join(' ')}** was dealt.\n_Better luck next time. You are looking for **${goldenId.split('_').join(' ')}**._`;
                             }
 
                             msg.embeds = [
