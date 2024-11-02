@@ -56,7 +56,7 @@ export const rewardCommand = async (context, appwrite) => {
                                     const number = numbers[Math.floor(Math.random() * numbers.length)];
                                     const color = colors[Math.floor(Math.random() * colors.length)];
                                     card = `${number}_of_${color}`;
-                                } while(card !== goldenId);
+                                } while(card == goldenId);
                             }
 
                             context.log(`Card: ${card}`);
