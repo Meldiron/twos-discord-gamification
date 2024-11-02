@@ -95,7 +95,7 @@ export const rewardCommand = async (context, appwrite) => {
                         }
                     } catch (err) {
                         await Axios.post(process.env.WEBHOOK_URL, {
-                            content: "❌ Error occured! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
+                            content: "❌ Error occured <@287294735054274560>! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
                         });
                     }
                 }, 1000);
@@ -107,7 +107,7 @@ export const rewardCommand = async (context, appwrite) => {
 
         } catch (err) {
             await Axios.post(process.env.WEBHOOK_URL, {
-                content: "❌ Error occured! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
+                content: "❌ Error occured <@287294735054274560>! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
             });
         }
     })();
