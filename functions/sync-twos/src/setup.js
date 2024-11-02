@@ -1,0 +1,38 @@
+import Axios from 'axios';
+import { throwIfMissing } from './utils.js';
+
+async function registerCommand(body) {
+    const registerApi = `https://discord.com/api/v9/applications/${process.env.DISCORD_APPLICATION_ID}/commands`;
+
+    const response = await Axios.post(registerApi, body, {
+        headers: {
+            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        },
+    });
+
+    if (response.status >= 400) {
+        throw new Error('Failed to register command');
+    }
+}
+
+async function setup() {
+    throwIfMissing(process.env, [
+        'DISCORD_PUBLIC_KEY',
+        'DISCORD_APPLICATION_ID',
+        'DISCORD_TOKEN',
+    ]);
+
+    await registerCommand({
+        name: 'help',
+        description: 'Explains how to get reward for todos.',
+    });
+
+    await registerCommand({
+        name: 'reward',
+        description: 'Claim your reward for todos.',
+    });
+
+    console.log('Commands registered successfully');
+}
+
+setup();

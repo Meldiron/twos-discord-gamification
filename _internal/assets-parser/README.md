@@ -1,0 +1,8 @@
+- `npm install`
+- Move assets into `cards/` (get from [here](https://ddant1100.itch.io/ttrpg-legacy-cards-1))
+- `mkdir assets/`
+- `cp cards/extra/joker_lady.png assets/joker.png`
+- `cp cards/extra/back_black_design_01.png assets/back.png`
+- `node index.js`
+- Move golden card from `cards/` to `assets/golden.png`
+- Use `assets/` in `functions/sync-twos` function
