@@ -1,5 +1,6 @@
 import * as sharp from 'sharp';
-import { base } from './utils';
+import * as path from 'path';
+import { base } from './utils.js';
 
 export const generateImage = async (cards) => {
     const images = [];

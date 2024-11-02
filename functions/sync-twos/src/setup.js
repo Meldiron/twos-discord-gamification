@@ -17,6 +17,7 @@ async function registerCommand(body) {
 
 async function setup() {
     throwIfMissing(process.env, [
+        'WEBHOOK_URL',
         'DISCORD_PUBLIC_KEY',
         'DISCORD_APPLICATION_ID',
         'DISCORD_TOKEN',
@@ -30,6 +31,15 @@ async function setup() {
     await registerCommand({
         name: 'reward',
         description: 'Claim your reward for todos.',
+        options: [
+            {
+                type: 4, // Integer
+                name: "finished_todos",
+                description: "Total finished todos.",
+                required: true,
+                min_value: 1
+            }
+        ]
     });
 
     console.log('Commands registered successfully');

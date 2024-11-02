@@ -1,4 +1,5 @@
 import { Client, ID, Storage, Users } from 'node-appwrite';
+import { InputFile } from 'node-appwrite/file';
 
 export class AppwriteService {
     storage;
@@ -15,23 +16,20 @@ export class AppwriteService {
     }
 
     async saveFile(buffer) {
-        const blob = new Blob([buffer]);
-        const file = new File([blob], `game_${Date.now()}.png`, { type: 'image/png' });
-
-        const response = await storage.createFile('games', ID.unique(), file);
+        const response = await this.storage.createFile('games', ID.unique(), InputFile.fromBuffer(buffer, `game_${Date.now()}.png`));
         return response;
     }
 
     async getUser(userId) {
         try {
-            return await users.get(userId);
+            return await this.users.get(userId);
         } catch (err) {
-            return await users.create(userId);
+            return await this.users.create(userId);
         }
     }
 
     async updateUserFinishes(userId, finishes) {
-        await users.updatePrefs(userId, {
+        await this.users.updatePrefs(userId, {
             finishes
         });
     }

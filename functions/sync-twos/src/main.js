@@ -10,24 +10,39 @@ import { helpCommand } from './commands/help.js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { base } from './utils.js';
+import { rewardCommand } from './commands/reward.js';
+import { AppwriteService } from './appwrite.js';
 
 export default async (context) => {
   const { req, res, error, log } = context;
 
-  if(req.headers['x-appwrite-trigger'] === 'schedule') {
+  const appwrite = new AppwriteService(req.headers['x-appwrite-key'] ?? '');
+
+  if (req.headers['x-appwrite-trigger'] === 'schedule') {
     return res.empty();
   }
 
-  if(req.path === '/static/help.png') {
+  if (req.path === '/static/help.png') {
     const file = readFileSync(path.join(base, "static/help.png"));
     return res.binary(file, 200, { 'content-type': 'image/png' });
   }
 
   throwIfMissing(process.env, [
+    'WEBHOOK_URL',
     'DISCORD_PUBLIC_KEY',
     'DISCORD_APPLICATION_ID',
     'DISCORD_TOKEN',
   ]);
+
+  context.log(req.bodyBinary.length);
+  context.log(req.headers['x-signature-ed25519']);
+  context.log(req.headers['x-signature-timestamp']);
+  context.log(process.env.DISCORD_PUBLIC_KEY);
+
+  if(!req.headers['x-signature-ed25519'] || !req.headers['x-signature-timestamp']) {
+    context.error('Invalid headers');
+    return res.json({ error: 'Invalid request signature' }, 401);
+  }
 
   if (
     !verifyKey(
@@ -37,7 +52,7 @@ export default async (context) => {
       process.env.DISCORD_PUBLIC_KEY
     )
   ) {
-    error('Invalid request');
+    context.error('Invalid request');
     return res.json({ error: 'Invalid request signature' }, 401);
   }
 
@@ -49,52 +64,12 @@ export default async (context) => {
     if (interaction.data.name === 'help') {
       return await helpCommand(context);
     }
+    if (interaction.data.name === 'reward') {
+      return await rewardCommand(context, appwrite);
+    }
   }
 
   log("Didn't match command - returning PONG");
 
   return res.json({ type: InteractionResponseType.PONG }, 200);
 };
-
-/*
-export default async ({ req, res, log, error }) => {
-  const appwrite = new AppwriteService(req.headers['x-appwrite-key'] ?? '');
-
-  const users = process.env['USERS'].split(',');
-
-  for(const user of users) {
-    const [ userId, token ] = user.split('_');
-
-    log(`User ID: ${userId}`);
-
-    const finishes = await getFinishedCount(userId, token);
-    log(`Finishes: ${finishes}`);
-
-    const user = await appwrite.getUser(userId);
-    const lastFinishes = user.prefs.finishes ?? 0;
-    log(`Last finishes: ${finishes}`);
-
-    if(finishes !== lastFinishes) {
-      await appwrite.updateUserFinishes(userId, finishes);
-    }
-
-    if(finishes <= lastFinishes) {
-      log(`Skipping`);
-      continue;
-    }
-
-    const cards = [];
-    const didWin = false;
-    // TODO: Radomness
-
-    const buffer = await generateImage();
-
-    const file = await appwrite.saveFile(buffer);
-    log(`File ID: ${file.$id}`);
-
-    // TODO: Send message to Discord
-  }
-
-  return res.send('OK');
-};
-*/
