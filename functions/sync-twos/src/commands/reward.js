@@ -31,7 +31,7 @@ export const rewardCommand = async (context, appwrite) => {
 
                 setTimeout(async () => {
                     try {
-                        const history = []; // TODO: Remember rotation and position
+                        const history = [];
 
                         for (let i = 0; i < diff; i++) {
                             const numbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'ace', 'jack', 'queen', 'king'];
@@ -67,16 +67,16 @@ export const rewardCommand = async (context, appwrite) => {
 
                             let msg = {}
                             if (card === 'joker') {
-                                msg.content = `**Golden card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
+                                msg.content = `**Joker card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
                             } else if (card === 'golden') {
-                                msg.content = `**${goldenId.split('_').join(' ')}** was dealt.\n\nYou won! 🥳 <@287294735054274560> <@1152120064154288169>`;
+                                msg.content = `**Golden ${goldenId.split('_').join(' ')}** was dealt.\n\nYou won, and made our vacation better! 🥳 <@287294735054274560> <@1152120064154288169>`;
                             } else {
-                                msg.content = `Card **${card.split('_').join(' ')}** was dealt.\n_Better luck next time. You are looking for **${goldenId.split('_').join(' ')}**._`;
+                                msg.content = ``;
                             }
 
                             msg.embeds = [
                                 {
-                                    "title": "Table with cards",
+                                    "title": `Table with cards (${i+1}/${diff})`,
                                     "type": "image",
                                     "image": {
                                         "url": `https://cloud.appwrite.io/v1/storage/buckets/games/files/${file.$id}/view?project=twos-gamification&project=twos-gamification`
