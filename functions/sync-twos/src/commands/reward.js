@@ -17,6 +17,7 @@ export const rewardCommand = async (context, appwrite) => {
         try {
             const user = await appwrite.getUser(userId);
             const previousFinishes = user.prefs.finishes ?? 0;
+            let attempt = user.prefs.attempt ?? 0;
 
             if (finishes > previousFinishes) {
                 await appwrite.updateUserFinishes(userId, finishes);
@@ -26,7 +27,7 @@ export const rewardCommand = async (context, appwrite) => {
                 const diff = finishes - previousFinishes;
 
                 await Axios.post(process.env.WEBHOOK_URL, {
-                    content: `🤖 Dealing ${diff} ${diff === 1 ? 'card' : 'cards'} for  <@${userId}>...\n\n_Finished todos increased from ${previousFinishes} to ${finishes}._`
+                    content: `🤖 Dealing ${diff} ${diff === 1 ? 'card' : 'cards'} for <@${userId}>...\n\n_Finished todos increased from ${previousFinishes} to ${finishes}._`
                 });
 
                 setTimeout(async () => {
@@ -34,16 +35,28 @@ export const rewardCommand = async (context, appwrite) => {
                         const history = [];
 
                         for (let i = 0; i < diff; i++) {
+                            attempt++;
+
                             const numbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'ace', 'jack', 'queen', 'king'];
                             const colors = ['heart', 'spade', 'diamond', 'club'];
 
                             let joker = false;
                             let golden = false;
 
-                            if (Math.random() < 0.01) {
-                                joker = true;
-                            } else if (Math.random() < 0.02) {
-                                golden = true;
+                            const winChance = 1 - Math.pow((1 - (1 / 100)), Math.max(attempt, 1));
+                            if (Math.random() < winChance) {
+                                if (Math.random() < 0.2) {
+                                    joker = true;
+                                } else {
+                                    golden = true;
+                                }
+                            }
+
+                            if (joker || golden) {
+                                await appwrite.updateUserAttempt(userId, 0);
+                                attempt = 0;
+                            } else {
+                                await appwrite.updateUserAttempt(userId, attempt);
                             }
 
                             let card;
@@ -56,7 +69,7 @@ export const rewardCommand = async (context, appwrite) => {
                                     const number = numbers[Math.floor(Math.random() * numbers.length)];
                                     const color = colors[Math.floor(Math.random() * colors.length)];
                                     card = `${number}_of_${color}`;
-                                } while(card == goldenId);
+                                } while (card == goldenId);
                             }
 
                             context.log(`Card: ${card}`);
@@ -76,7 +89,7 @@ export const rewardCommand = async (context, appwrite) => {
 
                             msg.embeds = [
                                 {
-                                    "title": `Table with cards (${i+1}/${diff})`,
+                                    "title": `Table with cards (${i + 1}/${diff} cards, luck ${Math.round(winChance * 1000) / 10}%)`,
                                     "type": "image",
                                     "image": {
                                         "url": `https://cloud.appwrite.io/v1/storage/buckets/games/files/${file.$id}/view?project=twos-gamification&project=twos-gamification`

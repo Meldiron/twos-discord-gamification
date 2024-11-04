@@ -29,8 +29,18 @@ export class AppwriteService {
     }
 
     async updateUserFinishes(userId, finishes) {
+        const user = await this.getUser(userId);
         await this.users.updatePrefs(userId, {
+            ...user.prefs,
             finishes
+        });
+    }
+
+    async updateUserAttempt(userId, attempt) {
+        const user = await this.getUser(userId);
+        await this.users.updatePrefs(userId, {
+            ...user.prefs,
+            attempt
         });
     }
 }
