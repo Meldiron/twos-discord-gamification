@@ -30,90 +30,77 @@ export const rewardCommand = async (context, appwrite) => {
                     content: `🤖 Dealing ${diff} ${diff === 1 ? 'card' : 'cards'} for <@${userId}>...\n\n_Finished todos increased from ${previousFinishes} to ${finishes}._`
                 });
 
-                setTimeout(async () => {
-                    try {
-                        const history = [];
 
-                        for (let i = 0; i < diff; i++) {
-                            attempt++;
+                const history = [];
 
-                            const numbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'ace', 'jack', 'queen', 'king'];
-                            const colors = ['heart', 'spade', 'diamond', 'club'];
+                for (let i = 0; i < diff; i++) {
+                    attempt++;
 
-                            let joker = false;
-                            let golden = false;
+                    const numbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'ace', 'jack', 'queen', 'king'];
+                    const colors = ['heart', 'spade', 'diamond', 'club'];
 
-                            const winChance = 1 - Math.pow((1 - (1 / 100)), Math.max(attempt, 1));
-                            if (Math.random() < winChance) {
-                                if (Math.random() < 0.2) {
-                                    joker = true;
-                                } else {
-                                    golden = true;
-                                }
-                            }
+                    let joker = false;
+                    let golden = false;
 
-                            if (joker || golden) {
-                                await appwrite.updateUserAttempt(userId, 0);
-                                attempt = 0;
-                            } else {
-                                await appwrite.updateUserAttempt(userId, attempt);
-                            }
-
-                            let card;
-                            if (joker) {
-                                card = "joker";
-                            } else if (golden) {
-                                card = "golden";
-                            } else {
-                                do {
-                                    const number = numbers[Math.floor(Math.random() * numbers.length)];
-                                    const color = colors[Math.floor(Math.random() * colors.length)];
-                                    card = `${number}_of_${color}`;
-                                } while (card == goldenId);
-                            }
-
-                            context.log(`Card: ${card}`);
-
-                            const buffer = await generateImage([...history, card]);
-                            const file = await appwrite.saveFile(buffer);
-                            context.log(`File ID: ${file.$id}`);
-
-                            let msg = {}
-                            if (card === 'joker') {
-                                msg.content = `**Joker card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
-                            } else if (card === 'golden') {
-                                msg.content = `**Golden ${goldenId.split('_').join(' ')}** was dealt.\n\nYou won, and made our vacation better! 🥳 <@287294735054274560> <@1152120064154288169>`;
-                            } else {
-                                msg.content = ``;
-                            }
-
-                            msg.embeds = [
-                                {
-                                    "title": `Table with cards (${i + 1}/${diff} cards, luck ${Math.round(winChance * 1000) / 10}%)`,
-                                    "type": "image",
-                                    "image": {
-                                        "url": `https://cloud.appwrite.io/v1/storage/buckets/games/files/${file.$id}/view?project=twos-gamification&project=twos-gamification`
-                                    }
-                                }
-                            ];
-
-                            history.push(card);
-
-                            const response = await Axios.post(process.env.WEBHOOK_URL, msg);
-                            context.log(`Discord responded with ${response.status}`);
-
-                            await new Promise((res, rej) => {
-                                setTimeout(() => {
-                                    res();
-                                }, 1000);
-                            });
+                    const winChance = 1 - Math.pow((1 - (1 / 100)), Math.max(attempt, 1));
+                    if (Math.random() < winChance) {
+                        if (Math.random() < 0.2) {
+                            joker = true;
+                        } else {
+                            golden = true;
                         }
-                    } catch (err) {
-                        await Axios.post(process.env.WEBHOOK_URL, {
-                            content: "❌ Error occured <@287294735054274560>! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
-                        });
                     }
-                }, 1000);
+
+                    if (joker || golden) {
+                        await appwrite.updateUserAttempt(userId, 0);
+                        attempt = 0;
+                    } else {
+                        await appwrite.updateUserAttempt(userId, attempt);
+                    }
+
+                    let card;
+                    if (joker) {
+                        card = "joker";
+                    } else if (golden) {
+                        card = "golden";
+                    } else {
+                        do {
+                            const number = numbers[Math.floor(Math.random() * numbers.length)];
+                            const color = colors[Math.floor(Math.random() * colors.length)];
+                            card = `${number}_of_${color}`;
+                        } while (card == goldenId);
+                    }
+
+                    context.log(`Card: ${card}`);
+
+                    const buffer = await generateImage([...history, card]);
+                    const file = await appwrite.saveFile(buffer);
+                    context.log(`File ID: ${file.$id}`);
+
+                    let msg = {}
+                    if (card === 'joker') {
+                        msg.content = `**Joker card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
+                    } else if (card === 'golden') {
+                        msg.content = `**Golden ${goldenId.split('_').join(' ')}** was dealt.\n\nYou won, and made our vacation better! 🥳 <@287294735054274560> <@1152120064154288169>`;
+                    } else {
+                        msg.content = ``;
+                    }
+
+                    msg.embeds = [
+                        {
+                            "title": `Table with cards (${i + 1}/${diff} cards, luck ${Math.round(winChance * 1000) / 10}%)`,
+                            "type": "image",
+                            "image": {
+                                "url": `https://cloud.appwrite.io/v1/storage/buckets/games/files/${file.$id}/view?project=twos-gamification&project=twos-gamification`
+                            }
+                        }
+                    ];
+
+                    history.push(card);
+
+                    const response = await Axios.post(process.env.WEBHOOK_URL, msg);
+                    context.log(`Discord responded with ${response.status}`);
+                }
             } else {
                 await Axios.post(process.env.WEBHOOK_URL, {
                     content: `Oh no! 😓 You entered ${finishes} finished todos, but we already ran rewards for ${previousFinishes} todos. You need to finish more todos before running \`/reward\` again.`
