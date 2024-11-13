@@ -34,24 +34,20 @@ export default async (context) => {
     'DISCORD_TOKEN',
   ]);
 
-  context.log(req.bodyBinary.length);
-  context.log(req.headers['x-signature-ed25519']);
-  context.log(req.headers['x-signature-timestamp']);
-  context.log(process.env.DISCORD_PUBLIC_KEY);
 
   if(!req.headers['x-signature-ed25519'] || !req.headers['x-signature-timestamp']) {
     context.error('Invalid headers');
     return res.json({ error: 'Invalid request signature' }, 401);
   }
 
-  if (
-    !verifyKey(
-      req.bodyBinary,
-      req.headers['x-signature-ed25519'],
-      req.headers['x-signature-timestamp'],
-      process.env.DISCORD_PUBLIC_KEY
-    )
-  ) {
+  const verification = await verifyKey(
+    req.bodyBinary,
+    req.headers['x-signature-ed25519'],
+    req.headers['x-signature-timestamp'],
+    process.env.DISCORD_PUBLIC_KEY
+  );
+
+  if (!verification){
     context.error('Invalid request');
     return res.json({ error: 'Invalid request signature' }, 401);
   }
