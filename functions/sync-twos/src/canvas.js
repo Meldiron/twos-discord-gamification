@@ -5,6 +5,8 @@ import { base } from './utils.js';
 export const generateImage = async (cards) => {
     const images = [];
 
+    cards = cards.slice(-4);
+
     let i = 0;
     for (const card of cards) {
         const sharpCard = sharp.default(path.join(base, `assets/${card}.png`))
@@ -13,7 +15,7 @@ export const generateImage = async (cards) => {
         if (isLast) {
             sharpCard.resize(460);
         } else {
-            let angle = (Math.random() > 0.5 ? 1 : -1) * Math.round((5 + Math.random() * 10));
+            let angle = (Math.random() > 0.5 ? 1 : -1) * Math.round((10 + Math.random() * 15));
 
             if (Math.random() < 0.5) {
                 angle += 180;

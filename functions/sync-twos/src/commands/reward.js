@@ -2,13 +2,13 @@ import Axios from "axios";
 import { InteractionResponseType } from 'discord-interactions';
 import { generateImage } from "../canvas.js";
 
-const goldenId = "6_of_heart"; // Also update golden.png
-
 export const rewardCommand = async (context, appwrite) => {
     context.log("Running reward command");
 
     const userId = context.req.body.member.user.id;
     const finishes = context.req.body.data.options[0].value;
+
+    const webhookUrl = userId === "287294735054274560" ? process.env.STAGE_WEBHOOK_URL : process.env.WEBHOOK_URL;
 
     context.log(`User ID: ${finishes}`);
     context.log(`Entered finishes: ${finishes}`);
@@ -26,7 +26,7 @@ export const rewardCommand = async (context, appwrite) => {
             if (finishes > previousFinishes) {
                 const diff = finishes - previousFinishes;
 
-                await Axios.post(process.env.WEBHOOK_URL, {
+                await Axios.post(webhookUrl, {
                     content: `🤖 Dealing ${diff} ${diff === 1 ? 'card' : 'cards'} for <@${userId}>...\n\n_Finished todos increased from ${previousFinishes} to ${finishes}._`
                 });
 
@@ -58,17 +58,31 @@ export const rewardCommand = async (context, appwrite) => {
                         await appwrite.updateUserAttempt(userId, attempt);
                     }
 
+                    let winning = 0;
+
                     let card;
                     if (joker) {
                         card = "joker";
-                    } else if (golden) {
-                        card = "golden";
                     } else {
-                        do {
-                            const number = numbers[Math.floor(Math.random() * numbers.length)];
-                            const color = colors[Math.floor(Math.random() * colors.length)];
-                            card = `${number}_of_${color}`;
-                        } while (card == goldenId);
+                        const number = numbers[Math.floor(Math.random() * numbers.length)];
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        card = `${number}_of_${color}`;
+                        
+                        if(golden) {
+                            card = `golden_${card}`;
+                        }
+
+                        if(number === "ace") {
+                            winning = 300;
+                        } else if(number === "jack") {
+                            winning = 1500;
+                        } else if(number === "queen") {
+                            winning = 200;
+                        } else if(number === "king") {
+                            winning = 250;
+                        } else {
+                            winning = (+number) * 10;
+                        }
                     }
 
                     context.log(`Card: ${card}`);
@@ -78,10 +92,10 @@ export const rewardCommand = async (context, appwrite) => {
                     context.log(`File ID: ${file.$id}`);
 
                     let msg = {}
-                    if (card === 'joker') {
-                        msg.content = `**Joker card** was dealt.\n\nYou won! 🥳 You can wish for anything and I'll make it happen within 24 hours. <@287294735054274560> <@1152120064154288169>`;
-                    } else if (card === 'golden') {
-                        msg.content = `**Golden ${goldenId.split('_').join(' ')}** was dealt.\n\nYou won, and made our vacation better! 🥳 <@287294735054274560> <@1152120064154288169>`;
+                    if (joker) {
+                        msg.content = `You won a surprise! 🔥 <@287294735054274560> <@1152120064154288169>`;
+                    } else if (golden) {
+                        msg.content = `You won **${winning} Kč** for our vacation! 🥳 <@287294735054274560> <@1152120064154288169>`;
                     } else {
                         msg.content = ``;
                     }
@@ -98,17 +112,17 @@ export const rewardCommand = async (context, appwrite) => {
 
                     history.push(card);
 
-                    const response = await Axios.post(process.env.WEBHOOK_URL, msg);
+                    const response = await Axios.post(webhookUrl, msg);
                     context.log(`Discord responded with ${response.status}`);
                 }
             } else {
-                await Axios.post(process.env.WEBHOOK_URL, {
+                await Axios.post(webhookUrl, {
                     content: `Oh no! 😓 You entered ${finishes} finished todos, but we already ran rewards for ${previousFinishes} todos. You need to finish more todos before running \`/reward\` again.`
                 });
             }
 
         } catch (err) {
-            await Axios.post(process.env.WEBHOOK_URL, {
+            await Axios.post(webhookUrl, {
                 content: "❌ Error occured <@287294735054274560>! " + err.message + "\nDetails: ```\n" + JSON.stringify(err.stack) + "\n```"
             });
         }

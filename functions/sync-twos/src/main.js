@@ -29,6 +29,7 @@ export default async (context) => {
 
   throwIfMissing(process.env, [
     'WEBHOOK_URL',
+    'STAGE_WEBHOOK_URL',
     'DISCORD_PUBLIC_KEY',
     'DISCORD_APPLICATION_ID',
     'DISCORD_TOKEN',

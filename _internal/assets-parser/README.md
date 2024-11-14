@@ -4,5 +4,7 @@
 - `cp cards/extra/joker_lady.png assets/joker.png`
 - `cp cards/extra/back_black_design_01.png assets/back.png`
 - `node index.js`
-- Move golden card from `cards/` to `assets/golden.png`
+- `rm -rf ../../functions/sync-twos/assets/`
+- `mkdir -p ../../functions/sync-twos/assets`
+- `cp -R assets/* ../../functions/sync-twos/assets/`
 - Use `assets/` in `functions/sync-twos` function
