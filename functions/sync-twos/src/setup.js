@@ -42,6 +42,20 @@ async function setup() {
         ]
     });
 
+    await registerCommand({
+        name: 'voucher',
+        description: 'Redeem voucher for pack of cards.',
+        options: [
+            {
+                type: 3, // String
+                name: "code",
+                description: "Voucher code.",
+                required: true,
+                min_length: 1
+            }
+        ]
+    });
+
     console.log('Commands registered successfully');
 }
 

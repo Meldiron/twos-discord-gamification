@@ -49,7 +49,9 @@
             "scopes": [
                 "users.read",
                 "users.write",
-                "files.write"
+                "files.write",
+                "documents.read",
+                "documents.write"
             ],
             "schedule": "* * * * *",
             "timeout": 600,
@@ -58,6 +60,42 @@
             "entrypoint": "src/main.js",
             "commands": "npm install && node src/setup.js",
             "path": "functions/sync-twos"
+        }
+    ],
+    "databases": [
+        {
+            "$id": "main",
+            "name": "main",
+            "enabled": true
+        }
+    ],
+    "collections": [
+        {
+            "$id": "vouchers",
+            "$permissions": [],
+            "databaseId": "main",
+            "name": "vouchers",
+            "enabled": true,
+            "documentSecurity": false,
+            "attributes": [
+                {
+                    "key": "cards",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "default": null
+                },
+                {
+                    "key": "used",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                }
+            ],
+            "indexes": []
         }
     ]
 }

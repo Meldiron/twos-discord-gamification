@@ -12,6 +12,7 @@ import path from 'path';
 import { base } from './utils.js';
 import { rewardCommand } from './commands/reward.js';
 import { AppwriteService } from './appwrite.js';
+import { voucherCommand } from './commands/voucher.js';
 
 export default async (context) => {
   const { req, res, error, log } = context;
@@ -63,6 +64,9 @@ export default async (context) => {
     }
     if (interaction.data.name === 'reward') {
       return await rewardCommand(context, appwrite);
+    }
+    if (interaction.data.name === 'voucher') {
+      return await voucherCommand(context, appwrite);
     }
   }
 
