@@ -15,7 +15,7 @@ import { AppwriteService } from './appwrite.js';
 import { voucherCommand } from './commands/voucher.js';
 
 export default async (context) => {
-  const { req, res, error, log } = context;
+  const { req, res, log } = context;
 
   const appwrite = new AppwriteService(req.headers['x-appwrite-key'] ?? '');
 
@@ -24,7 +24,7 @@ export default async (context) => {
   }
 
   if (req.path === '/static/help.png') {
-    const file = readFileSync(path.join(base, "static/help.png"));
+    const file = readFileSync(path.join(base, 'static/help.png'));
     return res.binary(file, 200, { 'content-type': 'image/png' });
   }
 
@@ -36,8 +36,10 @@ export default async (context) => {
     'DISCORD_TOKEN',
   ]);
 
-
-  if(!req.headers['x-signature-ed25519'] || !req.headers['x-signature-timestamp']) {
+  if (
+    !req.headers['x-signature-ed25519'] ||
+    !req.headers['x-signature-timestamp']
+  ) {
     context.error('Invalid headers');
     return res.json({ error: 'Invalid request signature' }, 401);
   }
@@ -49,7 +51,7 @@ export default async (context) => {
     process.env.DISCORD_PUBLIC_KEY
   );
 
-  if (!verification){
+  if (!verification) {
     context.error('Invalid request');
     return res.json({ error: 'Invalid request signature' }, 401);
   }
