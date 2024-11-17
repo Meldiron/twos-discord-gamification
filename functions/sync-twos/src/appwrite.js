@@ -65,4 +65,20 @@ export class AppwriteService {
       attempt,
     });
   }
+
+  async updateLastFinish(userId, dateId) {
+    const user = await this.getUser(userId);
+    await this.users.updatePrefs(userId, {
+      ...user.prefs,
+      lastFinishDate: dateId,
+    });
+  }
+
+  async updateJokerFragments(userId, jokerFragments) {
+    const user = await this.getUser(userId);
+    await this.users.updatePrefs(userId, {
+      ...user.prefs,
+      jokerFragments,
+    });
+  }
 }

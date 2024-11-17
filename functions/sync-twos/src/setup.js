@@ -56,6 +56,11 @@ async function setup() {
     ],
   });
 
+  await registerCommand({
+    name: 'joker',
+    description: 'See your joker fragments progress.',
+  });
+
   console.log('Commands registered successfully');
 }
 

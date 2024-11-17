@@ -1,6 +1,6 @@
 import Axios from 'axios';
 import { InteractionResponseType } from 'discord-interactions';
-import { sendCard } from '../utils/game.js';
+import { sendCard, sendJoker } from '../utils/game.js';
 
 export const rewardCommand = async (context, appwrite) => {
   context.log('Running reward command');
@@ -27,6 +27,9 @@ export const rewardCommand = async (context, appwrite) => {
 
       if (finishes > previousFinishes) {
         const diff = finishes - previousFinishes;
+
+        // Will only send it first today
+        await sendJoker(appwrite, user, webhookUrl);
 
         await Axios.post(webhookUrl, {
           content: `🤖 Dealing ${diff} ${diff === 1 ? 'card' : 'cards'} for <@${userId}>...\n\n_Finished todos increased from ${previousFinishes} to ${finishes}._`,

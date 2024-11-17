@@ -1,0 +1,1 @@
+`mkdir -p shards/ && convert -crop 111x111 joker.png shards/joker-%d.png`
