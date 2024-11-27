@@ -9,9 +9,9 @@ export const sendCard = async (
   webhookUrl
 ) => {
   const user = await appwrite.getUser(userId);
-  let attempt = user.prefs.attempt ?? 0;
+  let percentage = user.prefs.percentage ?? 0;
 
-  attempt++;
+  percentage++;
 
   const numbers = [
     '2',
@@ -32,19 +32,10 @@ export const sendCard = async (
 
   let golden = false;
 
-  const winChance = 1 - Math.pow(1 - 1 / 100, Math.max(attempt, 1));
+  const winChance = percentage / 100;
   if (Math.random() < winChance) {
     golden = true;
   }
-
-  if (golden) {
-    await appwrite.updateUserAttempt(userId, 0);
-    attempt = 0;
-  } else {
-    await appwrite.updateUserAttempt(userId, attempt);
-  }
-
-  let winning = 0;
 
   const number = numbers[Math.floor(Math.random() * numbers.length)];
   const color = colors[Math.floor(Math.random() * colors.length)];
@@ -54,16 +45,25 @@ export const sendCard = async (
     card = `golden_${card}`;
   }
 
+  let percentageAfterWin = 100;
   if (number === 'ace') {
-    winning = 300;
+    percentageAfterWin = 15;
   } else if (number === 'jack') {
-    winning = 150;
+    percentageAfterWin = 11;
   } else if (number === 'queen') {
-    winning = 200;
+    percentageAfterWin = 12;
   } else if (number === 'king') {
-    winning = 250;
+    percentageAfterWin = 13;
   } else {
-    winning = +number * 10;
+    percentageAfterWin = +number;
+  }
+
+  if (golden) {
+
+    await appwrite.updatePercentage(userId, 1);
+    percentage = 0;
+  } else {
+    await appwrite.updatePercentage(userId, percentage);
   }
 
   const buffer = await generateImage([...history, card]);
@@ -71,7 +71,7 @@ export const sendCard = async (
 
   let msg = {};
   if (golden) {
-    msg.content = `You won **${winning} Kč** for our vacation! 🥳 <@287294735054274560> <@1152120064154288169>`;
+    msg.content = `You won **100 Kč** for our vacation! 🥳 <@287294735054274560> <@1152120064154288169>`;
   } else {
     msg.content = ``;
   }

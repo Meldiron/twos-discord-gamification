@@ -58,11 +58,11 @@ export class AppwriteService {
     });
   }
 
-  async updateUserAttempt(userId, attempt) {
+  async updatePercentage(userId, percentage) {
     const user = await this.getUser(userId);
     await this.users.updatePrefs(userId, {
       ...user.prefs,
-      attempt,
+      percentage,
     });
   }
 
