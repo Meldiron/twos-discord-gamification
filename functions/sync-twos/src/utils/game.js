@@ -59,9 +59,8 @@ export const sendCard = async (
   }
 
   if (golden) {
-
-    await appwrite.updatePercentage(userId, 1);
-    percentage = 0;
+    await appwrite.updatePercentage(userId, percentageAfterWin - 1);
+    percentage = percentageAfterWin - 1;
   } else {
     await appwrite.updatePercentage(userId, percentage);
   }
